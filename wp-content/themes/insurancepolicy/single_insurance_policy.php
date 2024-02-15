@@ -31,7 +31,8 @@ if (isset($_GET['submission'])) {
             <div class="card " data-mdb-input-init>
                 <h5 class="text-center mb-4">Insurance Policy</h5>
                 <form class="form-card"  action="<?php echo admin_url('admin-post.php'); ?>" method="post">
-
+                    <!-- Add nonce field -->
+                    <?php wp_nonce_field( 'save_policy_fields', 'policy_fields_nonce' ); ?>
                     <div class="row justify-content-between text-left">
                         <div class="form-group col-12 flex-column d-flex"> 
                             <label class="form-control-label px-3">Policy Name<span class="text-danger"> *</span></label> 
@@ -69,3 +70,4 @@ if (isset($_GET['submission'])) {
                     </div>
                 </form>
             </div>
+            <?php get_footer(); ?>

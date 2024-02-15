@@ -68,19 +68,19 @@
 <?php 
 
 if($post_count > 0)
-echo esc_url( home_url( '/insurance/single-policy-claim' ) );
 {?>
 <div class="container mt-5" >
   <div class="row mb-2">
     <div class="col-md-10"><h2>List Insurance Policy Claims</h2></div>
     <div class="col-md-2">
 
-      <a href="<?php echo esc_url( home_url( '/insurance/single-policy-claim' ) ); ?>">
+      <a href="<?php echo esc_url( home_url( '/single-insurance-claim' ) ); ?>">
         <button type="button" class="btn btn-primary me-1" >Add Policies Claim</button>
       </a>
     </div>
+</div>
     <div class="row mb-2">
-    <div class="col-md-12 ml-" id="insurance-policy-claims"> </div>
+    <div class="col-md-12 ml-3" id="insurance-policy-claims"> </div>
     
     
   </div>

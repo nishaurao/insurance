@@ -23,11 +23,11 @@ html {
     flex: 1;
   }
   
-  footer {
+  /* footer {
     flex-shrink: 0;
     background-color: #f0f0f0;
     padding: 20px;
-  }
+  } */
   
 .card {
     padding: 30px 40px;

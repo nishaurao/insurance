@@ -33,21 +33,31 @@ if (isset($_GET['claimsubmission'])) {
             <div class="card " data-mdb-input-init>
                 <h5 class="text-center mb-4">Insurance Claim</h5>
                 <form class="form-card"  action="<?php echo admin_url('admin-post.php'); ?>" method="post">
-
+                <!-- Add nonce field -->
+<?php wp_nonce_field( 'save_policy_claim_fields', 'policy_fields_claim_nonce' ); ?>
                     <div class="row justify-content-between text-left">
                         <div class="form-group col-12 flex-column d-flex"> 
                         <label class="form-control-label px-3">Claim Policy ID<span class="text-danger"> *</span></label>
-                         <input type="number" id="claim_policy_id" required name="claim_policy_id" placeholder="" onblur="validate(1)"> </div>
+                         <input type="number" id="claim_policy_id" required name="claim_policy_id" placeholder=""
+                         value="<?php echo isset($_POST['claim_policy_id']) ? esc_attr($_POST['claim_policy_id']) : ''; ?>"
+
+                          onblur="validate(1)"> </div>
                     </div>
                     <div class="row justify-content-between text-left">
                         <div class="form-group col-12 flex-column d-flex"> 
                         <label class="form-control-label px-3">Policy Name<span class="text-danger"> *</span></label>
-                         <input type="text" id="policy_name" required name="policy_name" placeholder="" onblur="validate(2)"> </div>
+                         <input type="text" id="policy_name" required name="policy_name" placeholder="" 
+                         value="<?php echo isset($_POST['policy_name']) ? esc_attr($_POST['policy_name']) : ''; ?>"
+
+                         onblur="validate(2)"> </div>
                     </div>
                     <div class="row justify-content-between text-left">
                         <div class="form-group col-12 flex-column d-flex"> 
                         <label class="form-control-label px-3">Email<span class="text-danger"> *</span></label> 
-                        <input type="email" id="email" required name="email" placeholder="" onblur="validate(3)"> </div>
+                        <input type="email" id="email" required name="email" placeholder="" 
+                        value="<?php echo isset($_POST['email']) ? esc_attr($_POST['email']) : ''; ?>"
+
+                        onblur="validate(3)"> </div>
                     </div>
                     
                     
@@ -59,4 +69,4 @@ if (isset($_GET['claimsubmission'])) {
             </div>
 
 
-
+            <?php get_footer(); ?>

@@ -57,16 +57,6 @@ add_action( 'init', 'register_custom_post_claim_type' );
 
 
 
-// function register_custom_post_meta() {
-//     register_meta( 'policy_claim', 'email', array(
-//         'type' => 'string',
-//         'description' => 'Email Address',
-//         'single' => true,
-//         'show_in_rest' => true, // Expose meta data in REST API
-//     ));
-// }
-// add_action( 'init', 'register_custom_post_meta' );
-
 
 
 // Add Custom Fields for Policy
@@ -96,6 +86,8 @@ function add_policy_meta_claim() {
 }
 add_action('add_meta_boxes', 'add_policy_meta_claim');
 
+
+
 function render_policy_meta_claim($post) {
     // Retrieve existing meta values
     $claim_policy_id = get_post_meta($post->ID, 'claim_policy_id', true);
@@ -114,20 +106,7 @@ function render_policy_meta_claim($post) {
 
 <?php
 }
-// save claim post
-// function save_policy_post_meta_claim($post_id) {
-//     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-//         return;
-//     }
-//     if (isset($_POST['claim_policy_id'])) {
-//         update_post_meta($post_id, 'claim_policy_id', sanitize_text_field($_POST['claim_policy_id']));
-//     }
-   
-//     if (isset($_POST['email'])) {
-//         update_post_meta($post_id, 'email', sanitize_email($_POST['email']));
-//     }
-// }
-// add_action('save_post', 'save_policy_post_meta_claim');
+
 
 
 
@@ -262,10 +241,12 @@ function handle_insurance_policy_form_submission() {
 
 
 
+
 // Save Custom Fields for Policy claim
 function save_custom_fields_for_claim( $post_id ) {
+
     // Check nonce
-    if ( !isset( $_POST['policy_fields_nonce'] ) || !wp_verify_nonce( $_POST['policy_fields_nonce'], basename( __FILE__ ) ) ) {
+    if ( !isset( $_POST['policy_fields_claim_nonce'] ) || !wp_verify_nonce( $_POST['policy_fields_claim_nonce'], 'save_policy_claim_fields' ) ) {
         return;
     }
 
@@ -274,7 +255,7 @@ function save_custom_fields_for_claim( $post_id ) {
         return;
     }
 
-    // Check the user's permissions.
+    // Check the user's permissions
     if ( isset( $_POST['post_type'] ) && 'policy_claim' == $_POST['post_type'] ) {
         if ( !current_user_can( 'edit_page', $post_id ) ) {
             return;
@@ -285,46 +266,46 @@ function save_custom_fields_for_claim( $post_id ) {
         }
     }
 
-    if ( empty( $_POST['post_title'] ) ) {
-        wp_die( 'Please enter a title for the policy.' );
+    // Check if the required fields are present and not empty
+    if ( empty( $_POST['claim_policy_id'] ) || empty( $_POST['email'] ) ) {
+        wp_die( 'Please enter all required fields.' );
     }
 
-    // Save custom fields data
+    // Sanitize and save custom fields data
     $claim_policy_id = sanitize_text_field( $_POST['claim_policy_id'] );
 
-    // Check for uniqueness of policy_id
-    $existing_posts = get_posts( array(
-        'post_type'      => 'policy_claim',
-        'post_status'    => 'any',
-        'meta_key'       => 'claim_policy_id',
-        'meta_value'     => $claim_policy_id,
-        'posts_per_page' => -1,
-        'exclude'        => array( $post_id ),
-    ) );
+    // // Check for uniqueness of claim_policy_id
+    // $existing_posts = get_posts( array(
+    //     'post_type'      => 'policy_claim',
+    //     'post_status'    => 'any',
+    //     'meta_key'       => 'claim_policy_id',
+    //     'meta_value'     => $claim_policy_id,
+    //     'posts_per_page' => -1,
+    //     'exclude'        => array( $post_id ),
+    // ) );
 
-    if ( $existing_posts ) {
-        // If policy_id already exists, display an error and prevent saving
-        wp_die( 'Policy ID must be unique.' );
+    // if ( $existing_posts ) {
+    //     // If claim_policy_id already exists, display an error and prevent saving
+    //     wp_die( 'Claim Policy ID must be unique.' );
+    // }
+
+    // Update or add claim_policy_id as post meta
+        update_post_meta( $post_id, 'claim_policy_id', $claim_policy_id );
+
+    // Sanitize and validate email field
+    $email = sanitize_email( $_POST['email'] );
+    if ( !is_email( $email ) ) {
+        wp_die( 'Invalid email address format. Please enter a valid email address.' );
     }
 
-    update_post_meta( $post_id, 'claim_policy_id', $claim_policy_id );
-
-    // Save other custom fields
-    
-    if (isset($_POST['email'])) {
-        $email = sanitize_email($_POST['email']);
-
-        // Validate email address format
-        if (!is_email($email)) {
-            // Email address is not valid, display an error message
-            wp_die('Invalid email address format. Please enter a valid email address.');
-        }
-
-        // Save the email address as meta data
-        update_post_meta($post_id, 'email', $email);
-    }
+    // Save the email address as meta data
+    update_post_meta( $post_id, 'email', $email );
 }
-add_action( 'save_post', 'save_custom_fields_for_claim' );
+
+add_action( 'save_post_policy_claim', 'save_custom_fields_for_claim' );
+
+
+
 
 
 
@@ -348,7 +329,6 @@ function handle_insurance_policy_claim_form_submission() {
             )
         ));
 
-
         if (!empty($existing_posts)) {
             // Handle the error - Policy ID is not unique
             wp_redirect(add_query_arg('claimsubmission', 'failed', wp_get_referer()));
@@ -359,11 +339,11 @@ function handle_insurance_policy_claim_form_submission() {
         $post_id = wp_insert_post(array(
             'post_type' => 'policy_claim',
             'post_title' => $claimPolicyName,
-            'post_content' => $description,
+            
             'post_status' => 'publish',
             'meta_input' => array(
                 'email' => $email,
-                'claim_policy_id' => $claim_policy_id,
+                'claim_policy_id' => $claimPolicyID,
             ),
         ));
 
